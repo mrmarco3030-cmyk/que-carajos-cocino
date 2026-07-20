@@ -1,0 +1,8 @@
+{
+  "appId": "com.marco.quecarajoscocino",
+  "appName": "¿Qué carajos cocino?",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
