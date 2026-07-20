@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#23201b" />
+  <meta name="description" content="Generador simple de comidas, recetas y lista de compras." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>¿Qué carajos cocino?</title>
+  
+  <style>
+    :root{
+      --bg:#f7f5f0; --surface:#fffdf8; --surface-2:#f0ece3; --text:#23201b;
+      --muted:#746d62; --primary:#ef6c45; --primary-dark:#d95734; --accent:#2f7d65;
+      --line:#e8e0d4; --danger:#b64040; --shadow:0 18px 50px rgba(65,52,34,.10);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;color:var(--text);
+      font-family:Inter,ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at top right,rgba(239,108,69,.14),transparent 32rem),
+        linear-gradient(180deg,#fbfaf7 0%,var(--bg) 100%);
+    }
+    button,select,input,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:820px;margin:auto;padding:20px 14px 110px}
+    header{padding:12px 4px 24px}
+    .brand{display:flex;align-items:center;gap:14px}
+    .brand-mark{
+      width:56px;height:56px;border-radius:18px;display:grid;place-items:center;
+      background:var(--text);color:#fff;font-size:1.55rem;box-shadow:var(--shadow)
+    }
+    h1{font-size:clamp(2rem,8vw,3.6rem);line-height:.94;letter-spacing:-.055em;margin:0;max-width:650px}
+    .subtitle{color:var(--muted);font-size:1rem;line-height:1.5;margin:12px 0 0;max-width:640px}
+    .install-banner{
+      display:flex;align-items:center;justify-content:space-between;gap:14px;
+      background:var(--text);color:#fff;border-radius:20px;padding:15px 16px;margin:0 0 16px;
+      box-shadow:var(--shadow)
+    }
+    .install-banner strong{display:block;margin-bottom:3px}
+    .install-banner small{color:#ddd6cb}
+    .install-button{border:0;border-radius:14px;padding:11px 14px;background:#fff;color:var(--text);font-weight:850}
+    .card{
+      background:rgba(255,253,248,.94);border:1px solid var(--line);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:20px;margin-bottom:16px;backdrop-filter:blur(8px)
+    }
+    .hero-card{background:linear-gradient(135deg,#fff7ed,#fffdf8)}
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h2{font-size:1.15rem;margin:0 0 13px;letter-spacing:-.02em}
+    .note{font-size:.9rem;color:var(--muted);line-height:1.5}
+    .toggle{
+      display:flex;align-items:center;justify-content:space-between;gap:14px;
+      padding:14px;background:#fff3ea;border:1px solid #f4d1bf;border-radius:17px;margin-bottom:13px
+    }
+    .toggle input{width:22px;height:22px;accent-color:var(--primary)}
+    .filters,.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    select,input,textarea{
+      width:100%;padding:13px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--text);
+      outline:none
+    }
+    select:focus,input:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(239,108,69,.12)}
+    textarea{min-height:90px;resize:vertical}
+    button{border:0;border-radius:14px;padding:12px 14px;font-weight:850}
+    .primary{background:var(--primary);color:#fff}
+    .primary:hover{background:var(--primary-dark)}
+    .secondary{background:var(--surface-2);color:var(--text)}
+    .green{background:var(--accent);color:#fff}
+    .danger{background:#f8e7e7;color:var(--danger)}
+    .meal{
+      position:relative;padding:16px;background:#fff;border:1px solid var(--line);
+      border-radius:18px;margin:11px 0;overflow:hidden
+    }
+    .meal:before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:var(--primary)}
+    .meal small{display:block;color:var(--muted);font-weight:800;margin-bottom:5px}
+    .meal-title{font-weight:900;font-size:1.08rem;letter-spacing:-.02em}
+    .meal-meta{font-size:.86rem;color:var(--muted);margin-top:6px}
+    .recipe-btn,.change-btn{margin-top:11px;padding:9px 11px;font-size:.84rem}
+    .recipe-btn{background:#f2ede5;color:var(--text)}
+    .change-btn{background:#e9f4ef;color:#246b57;margin-left:6px}
+    .recipe{display:none;margin-top:12px;padding:14px;background:#faf7f1;border:1px solid var(--line);border-radius:14px;font-size:.93rem;line-height:1.5}
+    .recipe.open{display:block}
+    .recipe h4{margin:0 0 6px}
+    .recipe ol,.recipe ul{margin:6px 0 0;padding-left:21px}
+    .shopping{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .shop-item{display:flex;align-items:center;gap:10px;padding:11px;background:#f1f7f4;border:1px solid #cfe6dd;border-radius:13px}
+    .shop-item input{width:18px;height:18px;accent-color:var(--accent)}
+    .empty{text-align:center;color:var(--muted);padding:22px 8px}
+    .bank-item{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+    .bank-item:last-child{border-bottom:0}
+    .bank-item button{padding:8px 10px}
+    .hidden{display:none!important}
+    .pill{display:inline-block;background:#f2ede5;color:#5d554a;border-radius:999px;padding:4px 8px;font-size:.73rem;font-weight:800;margin-top:6px}
+    .bottom-bar{
+      position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:10;
+      width:min(720px,calc(100% - 24px));display:grid;grid-template-columns:1fr 1fr;gap:9px;
+      padding:9px;background:rgba(35,32,27,.92);border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.22);
+      backdrop-filter:blur(14px)
+    }
+    .bottom-bar button{min-height:48px}
+    @media(max-width:580px){
+      .app{padding:15px 12px 105px}.card{padding:16px}.filters,.toolbar,.shopping{grid-template-columns:1fr}
+      .brand{align-items:flex-start}.brand-mark{width:48px;height:48px;border-radius:15px;flex:0 0 auto}
+      .install-banner{align-items:flex-start;flex-direction:column}
+      .install-button{width:100%}
+    }
+  </style>
+
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="brand-mark">🍳</div>
+      <div>
+        <h1>¿Qué carajos cocino?</h1>
+        <div class="subtitle">Menús simples, recetas claras y menos vueltas para decidir qué comer.</div>
+      </div>
+    </div>
+  </header>
+
+  <div id="installBanner" class="install-banner hidden">
+    <div>
+      <strong>Instalá la app en tu Motorola</strong>
+      <small>Se abre como una app y sigue funcionando sin conexión.</small>
+    </div>
+    <button id="installButton" class="install-button">Instalar</button>
+  </div>
+
+  <section class="card hero-card">
+    <div class="toggle">
+      <div>
+        <strong>🍟 Priorizar freidora de aire</strong>
+        <div class="note">Cuando sea posible, el menú elegirá recetas aptas para air fryer.</div>
+      </div>
+      <input id="airOnly" type="checkbox">
+    </div>
+
+    <div class="note" style="margin-bottom:10px"><strong>Modo inteligente:</strong> evita repetir proteínas, verduras y métodos dentro del mismo menú.</div>
+    <div class="filters">
+      <select id="proteinFilter">
+        <option value="all">Cualquier proteína</option>
+        <option value="carne">Carne vacuna</option>
+        <option value="pollo">Pollo</option>
+        <option value="cerdo">Cerdo</option>
+        <option value="pescado">Pescado</option>
+        <option value="huevo">Huevos</option>
+      </select>
+      <select id="timeFilter">
+        <option value="all">Cualquier tiempo</option>
+        <option value="15">Hasta 15 minutos</option>
+        <option value="25">Hasta 25 minutos</option>
+        <option value="40">Hasta 40 minutos</option>
+      </select>
+    </div>
+
+    <div class="toolbar" style="margin-top:12px">
+      <button class="primary" onclick="generateMenu()">🎲 Generar menú</button>
+      <button class="secondary" onclick="generateMenu()">🔄 Generar otro</button>
+    </div>
+
+    <div id="menu" class="empty">Tocá “Generar menú” para empezar.</div>
+  </section>
+
+  <section id="shoppingCard" class="card hidden">
+    <div class="section-title">
+      <h2>🛒 Lista de compras</h2>
+      <button class="secondary" onclick="copyShopping()">Copiar</button>
+    </div>
+    <div id="shopping" class="shopping"></div>
+  </section>
+
+  <section class="card">
+    <div class="section-title">
+      <h2>🍽️ Mis comidas</h2>
+      <button class="green" onclick="toggleForm()">+ Agregar</button>
+    </div>
+
+    <div id="customForm" class="hidden">
+      <input id="mealName" placeholder="Nombre de la comida">
+      <div style="height:8px"></div>
+      <textarea id="mealIngredients" placeholder="Ingredientes separados por coma"></textarea>
+      <div style="height:8px"></div>
+      <textarea id="mealSteps" placeholder="Pasos de la receta, uno por línea"></textarea>
+      <div style="height:8px"></div>
+      <div class="filters">
+        <select id="mealCategory">
+          <option value="desayuno">Desayuno</option>
+          <option value="almuerzo">Almuerzo</option>
+          <option value="cena">Cena</option>
+          <option value="snack">Snack</option>
+        </select>
+        <select id="mealProtein">
+          <option value="huevo">Huevos</option>
+          <option value="carne">Carne vacuna</option>
+          <option value="pollo">Pollo</option>
+          <option value="cerdo">Cerdo</option>
+          <option value="pescado">Pescado</option>
+        </select>
+      </div>
+      <div style="height:8px"></div>
+      <div class="filters">
+        <select id="mealMethod">
+          <option value="sarten">Sartén</option>
+          <option value="airfryer">Freidora de aire</option>
+          <option value="horno">Horno</option>
+          <option value="parrilla">Parrilla</option>
+        </select>
+        <input id="mealTime" type="number" min="5" max="120" value="20" placeholder="Minutos">
+      </div>
+      <div class="toolbar" style="margin-top:10px">
+        <button class="green" onclick="addMeal()">Guardar</button>
+        <button class="secondary" onclick="toggleForm()">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="mealBank"></div>
+  </section>
+
+  <div class="bottom-bar">
+    <button class="primary" onclick="generateMenu()">🎲 Generar menú</button>
+    <button class="secondary" onclick="document.getElementById('shoppingCard').scrollIntoView()">🛒 Compras</button>
+  </div>
+
+  <section class="card">
+    <h2>ℹ️ Importante</h2>
+    <div class="note">
+      Esta herramienta organiza ideas de comidas, pero no reemplaza indicaciones médicas.
+      Si usás insulina o medicación, los cambios fuertes en la alimentación conviene revisarlos con un profesional.
+    </div>
+  </section>
+</div>
+
+<script>
+const breakfasts = [
+ {name:'Huevos revueltos suaves',weight:18,time:8,ingredients:['2 huevos','1 cucharadita de manteca','Sal y pimienta'],steps:['Batí los huevos con sal y pimienta.','Derretí la manteca en una sartén a fuego bajo.','Agregá los huevos y revolvé lentamente hasta que estén apenas firmes.','Retirá enseguida para que no se sequen.']},
+ {name:'Omelet liviano de queso',weight:16,time:10,ingredients:['2 huevos','30 g de queso','Sal'],steps:['Batí los huevos con sal.','Volcalos en una sartén antiadherente caliente.','Cuando la base esté firme, agregá el queso en una mitad.','Doblá y cociná 1 minuto más.']},
+ {name:'Huevo duro con palta',weight:14,time:10,ingredients:['2 huevos','1/3 de palta','Limón y sal'],steps:['Herví los huevos durante 10 minutos.','Enfrialos, pelalos y cortalos.','Serví con la palta, unas gotas de limón y sal.']},
+ {name:'Rollitos de jamón y queso',weight:14,time:3,ingredients:['3 fetas de jamón cocido','3 tiras finas de queso'],steps:['Colocá una tira de queso sobre cada feta de jamón.','Enrollá y serví.']},
+ {name:'Yogur natural con nueces',weight:12,time:2,ingredients:['1 pote de yogur griego natural sin azúcar','1 cucharada de nueces picadas'],steps:['Colocá el yogur en un recipiente.','Agregá las nueces picadas y mezclá.']},
+ {name:'Queso, jamón y tomate',weight:12,time:4,ingredients:['50 g de queso','2 fetas de jamón','1/2 tomate'],steps:['Cortá el queso y el tomate.','Serví junto con el jamón.']},
+ {name:'Tortilla pequeña de espinaca',weight:8,time:12,ingredients:['2 huevos','1/2 taza de espinaca','30 g de queso','Sal'],steps:['Salteá la espinaca 2 minutos.','Batí los huevos con sal y queso.','Mezclá y cociná en sartén tapada 4 minutos por lado.']},
+ {name:'Muffins de huevo y queso',weight:4,time:14,air:true,ingredients:['2 huevos','30 g de queso','1 cucharada de morrón picado','Sal'],steps:['Batí los huevos y agregá queso, morrón y sal.','Volcá en moldes de silicona.','Cociná en freidora de aire a 170 °C durante 10 a 12 minutos.','Verificá que el centro esté firme.']},
+ {name:'Huevos con panceta',weight:2,time:12,ingredients:['2 huevos','2 fetas de panceta','Pimienta'],steps:['Dorá la panceta en sartén.','Agregá los huevos batidos.','Revolvé hasta que estén cocidos.']}
+];
+const snacks = [
+ {name:'Queso en cubos',time:2,ingredients:['50 g de queso'],steps:['Cortá el queso en cubos y serví.']},
+ {name:'Rollitos de jamón y queso',time:3,ingredients:['2 fetas de jamón','2 tiras de queso'],steps:['Colocá el queso sobre el jamón, enrollá y serví.']},
+ {name:'Aceitunas y queso',time:2,ingredients:['8 aceitunas','40 g de queso'],steps:['Escurrí las aceitunas y servilas con el queso.']},
+ {name:'Pepino con queso crema',time:4,ingredients:['1/2 pepino','1 cucharada de queso crema'],steps:['Cortá el pepino en rodajas.','Agregá una pequeña cantidad de queso crema encima.']},
+ {name:'Huevo duro',time:2,ingredients:['1 huevo duro','Sal'],steps:['Pelá el huevo ya cocido, cortalo y agregá sal.']},
+ {name:'Nueces',time:1,ingredients:['Un puñado pequeño de nueces'],steps:['Serví una porción pequeña.']},
+ {name:'Almendras',time:1,ingredients:['Un puñado pequeño de almendras'],steps:['Serví una porción pequeña.']},
+ {name:'Atún al natural',time:2,ingredients:['1/2 lata de atún al natural','Limón'],steps:['Escurrí el atún y agregá unas gotas de limón.']},
+ {name:'Palta con limón',time:3,ingredients:['1/2 palta','Limón y sal'],steps:['Cortá la palta.','Agregá limón y una pizca de sal.']},
+ {name:'Jamón y aceitunas',time:2,ingredients:['3 fetas de jamón','6 aceitunas'],steps:['Enrollá las fetas de jamón y serví con las aceitunas.']}
+];
+const proteins = {
+ pollo:{label:'Pechuga de pollo',ingredient:'200 g de pechuga de pollo',cook:{sarten:['Cociná la pechuga en sartén caliente 5 a 6 minutos por lado.','Verificá que el centro esté completamente cocido.'],airfryer:['Precalentá la freidora a 190 °C durante 3 minutos.','Cociná la pechuga 10 minutos, dala vuelta y cociná 6 a 8 minutos más.','Verificá que el centro esté completamente cocido.'],horno:['Precalentá el horno a 200 °C.','Horneá la pechuga durante 22 a 25 minutos.','Verificá que el centro esté completamente cocido.']}},
+ carne:{label:'Bife de carne',ingredient:'200 g de bife de carne',cook:{sarten:['Calentá bien una sartén.','Cociná el bife entre 3 y 5 minutos por lado, según el grosor y el punto deseado.','Dejalo reposar 3 minutos antes de servir.'],airfryer:['Precalentá la freidora a 200 °C.','Cociná el bife 6 minutos, dala vuelta y cociná otros 4 a 6 minutos.','Dejalo reposar 3 minutos.'],horno:['Sellá el bife 2 minutos por lado en sartén.','Terminá la cocción en horno a 200 °C durante 6 a 10 minutos.']}},
+ cerdo:{label:'Costeleta de cerdo',ingredient:'200 g de costeleta de cerdo',cook:{sarten:['Dorá la costeleta en sartén 5 minutos por lado.','Bajá el fuego y cociná 3 minutos más por lado.','Comprobá que esté bien cocida.'],airfryer:['Precalentá la freidora a 190 °C.','Cociná 10 minutos, dala vuelta y cociná 8 minutos más.','Comprobá que esté bien cocida.'],horno:['Precalentá el horno a 200 °C.','Horneá 25 minutos, dando vuelta a mitad de cocción.']}},
+ pescado:{label:'Filet de merluza',ingredient:'200 g de filet de merluza',cook:{sarten:['Calentá una sartén con un poco de aceite.','Cociná el pescado 3 a 4 minutos por lado, manipulándolo con cuidado.'],airfryer:['Precalentá la freidora a 185 °C.','Cociná el pescado 7 minutos, dala vuelta con cuidado y cociná 4 a 5 minutos más.'],horno:['Precalentá el horno a 190 °C.','Horneá el pescado durante 15 a 18 minutos.']}}
+};
+const vegetables = [
+ {id:'brocoli',name:'brócoli',ingredient:'1 taza de brócoli',weight:14,prep:['Cortá el brócoli en flores parejas.','Cocinalo al vapor o hervido durante 5 a 7 minutos, hasta que esté tierno pero firme.']},
+ {id:'coliflor',name:'coliflor',ingredient:'1 taza de coliflor',weight:13,prep:['Cortá la coliflor en flores.','Cocinala al vapor o hervida durante 7 minutos.']},
+ {id:'espinaca',name:'espinaca',ingredient:'1 taza de espinaca',weight:13,prep:['Lavá la espinaca.','Salteala 2 a 3 minutos con unas gotas de aceite.']},
+ {id:'berenjena',name:'berenjena',ingredient:'1/2 berenjena',weight:12,prep:['Cortá la berenjena en rodajas.','Cocinala en sartén 4 minutos por lado.']},
+ {id:'champinones',name:'champiñones',ingredient:'6 champiñones',weight:12,prep:['Laminá los champiñones.','Saltealos 5 minutos hasta que pierdan el agua.']},
+ {id:'morron',name:'morrones',ingredient:'1/2 morrón',weight:11,prep:['Cortá el morrón en tiras.','Saltealo 6 a 8 minutos hasta que esté tierno.']},
+ {id:'repollo',name:'ensalada de repollo',ingredient:'1 taza de repollo',weight:11,prep:['Cortá el repollo bien fino.','Condimentalo con aceite, limón y sal.']},
+ {id:'ensalada',name:'ensalada verde',ingredient:'1 plato de hojas verdes y tomate',weight:12,prep:['Lavá las hojas y el tomate.','Cortá y condimentá justo antes de servir.']},
+ {id:'zapallito',name:'zapallitos',ingredient:'1 zapallito',weight:10,prep:['Cortá el zapallito en medias lunas.','Saltealo 6 minutos hasta que esté tierno.']},
+ {id:'esparragos',name:'espárragos',ingredient:'8 espárragos',weight:8,prep:['Retirá la parte dura de los espárragos.','Cocinalos en sartén 6 minutos, girándolos.']},
+ {id:'zucchini',name:'zucchini',ingredient:'1/2 zucchini',weight:3,prep:['Cortá el zucchini en medias lunas.','Saltealo 5 a 6 minutos, evitando cocinarlo de más.']}
+];
+const flavors = [
+ {id:'limon',name:'al limón y ajo',ingredients:['1/2 limón','1 diente de ajo'],steps:['Mezclá jugo de limón con ajo picado y usalo para condimentar la proteína.']},
+ {id:'mostaza',name:'a la mostaza',ingredients:['1 cucharada de mostaza sin azúcar'],steps:['Untá la proteína con mostaza antes de cocinarla.']},
+ {id:'hierbas',name:'con manteca de hierbas',ingredients:['1 cucharadita de manteca','Perejil y ajo en polvo'],steps:['Mezclá la manteca con perejil y ajo.','Agregala sobre la proteína recién cocida.']},
+ {id:'pimenton',name:'al pimentón',ingredients:['1 cucharadita de pimentón','1 cucharadita de aceite'],steps:['Mezclá pimentón, aceite y sal.','Frotá la proteína con la mezcla antes de cocinar.']},
+ {id:'queso',name:'con salsa suave de queso',ingredients:['40 g de queso','2 cucharadas de crema'],steps:['Calentá la crema a fuego bajo.','Agregá el queso y mezclá hasta fundir.','Serví la salsa sobre la proteína.']},
+ {id:'chimichurri',name:'con chimichurri suave',ingredients:['1 cucharada de chimichurri'],steps:['Cociná la proteína sin el chimichurri.','Agregalo al final para que no se queme.']},
+ {id:'curry',name:'al curry suave',ingredients:['1/2 cucharadita de curry','2 cucharadas de crema'],steps:['Mezclá curry y crema.','Agregá la mezcla durante los últimos minutos de cocción.']}
+];
+const methods=['sarten','airfryer','horno'];
+const methodNames={sarten:'Sartén',airfryer:'Freidora de aire',horno:'Horno',none:'Sin cocción'};
+const labels={desayuno:'🌅 Desayuno',almuerzo:'🌞 Almuerzo',snack:'🍿 Snack',cena:'🌙 Cena'};
+let customMeals=JSON.parse(localStorage.getItem('smartMealCustom')||'[]');
+let currentMenu={}; let currentShopping=[];
+function weightedPick(list){let total=list.reduce((s,x)=>s+(x.weight||1),0),r=Math.random()*total;for(const x of list){r-=x.weight||1;if(r<=0)return x;}return list[list.length-1];}
+function randomPick(list){return list[Math.floor(Math.random()*list.length)];}
+function selectedProtein(){return document.getElementById('proteinFilter').value;}
+function selectedMaxTime(){const v=document.getElementById('timeFilter').value;return v==='all'?999:Number(v);}
+function buildMain(cat,used,excludeName=''){
+ let pkeys=Object.keys(proteins).filter(p=>!used.proteins.has(p));
+ const filter=selectedProtein(); if(filter!=='all'&&proteins[filter]) pkeys=[filter];
+ if(!pkeys.length)pkeys=Object.keys(proteins);
+ const pkey=randomPick(pkeys), p=proteins[pkey];
+ let vegs=vegetables.filter(v=>!used.veggies.has(v.id)); if(!vegs.length)vegs=vegetables;
+ const veg=weightedPick(vegs);
+ let fls=flavors.filter(f=>!used.flavors.has(f.id)); if(!fls.length)fls=flavors;
+ const flavor=randomPick(fls);
+ let meths=methods.filter(m=>!used.methods.has(m)); if(document.getElementById('airOnly').checked)meths=['airfryer'];
+ if(!meths.length)meths=methods; const method=randomPick(meths);
+ const time=method==='horno'?35:method==='airfryer'?27:23;
+ const name=`${p.label} ${flavor.name} con ${veg.name}`;
+ const ingredients=[p.ingredient,veg.ingredient,...flavor.ingredients,'Aceite de oliva','Sal y pimienta'];
+ const steps=[`Secá ${p.label.toLowerCase()} con papel de cocina y condimentá con sal y pimienta.`,...flavor.steps,...p.cook[method],...veg.prep,'Serví la proteína junto con la verdura.'];
+ const item={cat,name,protein:pkey,vegetable:veg.id,flavor:flavor.id,method,time,air:method==='airfryer',ingredients,steps,difficulty:'Fácil',servings:1};
+ used.proteins.add(pkey);used.veggies.add(veg.id);used.flavors.add(flavor.id);used.methods.add(method);return item;
+}
+function makeUsed(except){const u={proteins:new Set(),veggies:new Set(),flavors:new Set(),methods:new Set()};for(const [k,m] of Object.entries(currentMenu)){if(k===except||!m)continue;if(m.protein&&proteins[m.protein])u.proteins.add(m.protein);if(m.vegetable)u.veggies.add(m.vegetable);if(m.flavor)u.flavors.add(m.flavor);if(m.method&&m.method!=='none')u.methods.add(m.method);}return u;}
+function generateMenu(){const used={proteins:new Set(),veggies:new Set(),flavors:new Set(),methods:new Set()};currentMenu={desayuno:{...weightedPick(breakfasts),cat:'desayuno',method:'sarten',protein:'huevo',difficulty:'Muy fácil',servings:1},almuerzo:buildMain('almuerzo',used),snack:{...randomPick(snacks),cat:'snack',method:'none',protein:'snack',difficulty:'Muy fácil',servings:1},cena:buildMain('cena',used)};renderMenu();}
+function regenerateMeal(cat){if(cat==='desayuno')currentMenu.desayuno={...weightedPick(breakfasts),cat:'desayuno',method:'sarten',protein:'huevo',difficulty:'Muy fácil',servings:1};else if(cat==='snack')currentMenu.snack={...randomPick(snacks),cat:'snack',method:'none',protein:'snack',difficulty:'Muy fácil',servings:1};else currentMenu[cat]=buildMain(cat,makeUsed(cat));renderMenu();}
+function renderMenu(){const menu=document.getElementById('menu');menu.className='';menu.innerHTML=Object.entries(currentMenu).map(([key,m])=>{const rid=`recipe-${key}`,ings=m.ingredients.map(i=>`<li>${i}</li>`).join('\n'),steps=m.steps.map(s=>`<li>${s}</li>`).join('\n');return `<div class="meal"><small>${labels[key]}</small><div class="meal-title">${m.name}</div><div class="meal-meta">${methodNames[m.method]||m.method} · ${m.time} min · ${m.difficulty} · 1 porción</div><button class="recipe-btn" onclick="toggleRecipe('${rid}',this)">📖 Ver receta</button><button class="change-btn" onclick="regenerateMeal('${key}')">🔄 Otra opción</button><div id="${rid}" class="recipe"><h4>Ingredientes para 1 porción</h4><ul>${ings}</ul><h4 style="margin-top:10px">Paso a paso</h4><ol>${steps}</ol></div></div>`}).join('\n');currentShopping=[...new Set(Object.values(currentMenu).flatMap(m=>m.ingredients))].sort((a,b)=>a.localeCompare(b));renderShopping();}
+function toggleRecipe(id,b){const r=document.getElementById(id);r.classList.toggle('open');b.textContent=r.classList.contains('open')?'📕 Ocultar receta':'📖 Ver receta';}
+function renderShopping(){document.getElementById('shoppingCard').classList.remove('hidden');document.getElementById('shopping').innerHTML=currentShopping.map(i=>`<label class="shop-item"><input type="checkbox"><span>${i}</span></label>`).join('\n');}
+function copyShopping(){navigator.clipboard.writeText(currentShopping.map(i=>'• '+i).join('\n')).then(()=>alert('Lista copiada.'));}
+function toggleForm(){document.getElementById('customForm').classList.toggle('hidden');}
+function addMeal(){const name=document.getElementById('mealName').value.trim(),ingredients=document.getElementById('mealIngredients').value.split(',').map(x=>x.trim()).filter(Boolean),steps=document.getElementById('mealSteps').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!name||!ingredients.length||!steps.length){alert('Completá nombre, ingredientes y pasos.');return;}customMeals.push({name,ingredients,steps,cat:document.getElementById('mealCategory').value,protein:document.getElementById('mealProtein').value,method:document.getElementById('mealMethod').value,time:Number(document.getElementById('mealTime').value)||20});localStorage.setItem('smartMealCustom',JSON.stringify(customMeals));document.getElementById('mealName').value='';document.getElementById('mealIngredients').value='';document.getElementById('mealSteps').value='';toggleForm();renderBank();}
+function removeMeal(i){customMeals.splice(i,1);localStorage.setItem('smartMealCustom',JSON.stringify(customMeals));renderBank();}
+function renderBank(){const el=document.getElementById('mealBank');el.innerHTML=customMeals.length?customMeals.map((m,i)=>`<div class="bank-item"><div><strong>${m.name}</strong><div class="pill">${labels[m.cat]||m.cat} · ${m.time} min</div></div><button class="danger" onclick="removeMeal(${i})">Eliminar</button></div>`).join('\n'):'<div class="empty">Todavía no agregaste comidas propias.</div>';}
+renderBank();
+
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  document.getElementById('installBanner').classList.remove('hidden');
+});
+document.getElementById('installButton').addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('installBanner').classList.add('hidden');
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').classList.add('hidden');
+});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+}
+
+</script>
+</body>
+</html>

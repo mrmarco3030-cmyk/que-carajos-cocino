@@ -1,0 +1,8 @@
+QUÉ CARAJOS COCINO? — PWA
+
+Para instalarla en Android/Motorola:
+1. Subí toda esta carpeta a un alojamiento HTTPS (por ejemplo GitHub Pages, Netlify o Cloudflare Pages).
+2. Abrí la dirección publicada en Chrome.
+3. Tocá “Instalar” dentro de la app o el menú ⋮ > “Agregar a pantalla principal”.
+
+Importante: Android no permite instalar una PWA directamente desde un archivo local file://.
