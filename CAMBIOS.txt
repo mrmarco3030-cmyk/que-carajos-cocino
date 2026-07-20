@@ -1,0 +1,8 @@
+VERSIÓN 2.3
+
+- Se mantuvo el motor del generador.
+- Se reemplazaron acompañamientos repetidos por 50 opciones realmente distintas.
+- Se reemplazaron condimentos duplicados por 40 salsas y sabores diferentes.
+- Cada salsa explica cuándo prepararla, cómo mezclarla y cómo servirla.
+- Se eliminaron nombres con números como “mostaza 2” o “pimentón 4”.
+- Se reduce la posibilidad de obtener almuerzo y cena casi iguales.
