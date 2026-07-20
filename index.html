@@ -363,39 +363,61 @@ function renderShopping(){
 }
 function copyShopping(){navigator.clipboard.writeText(currentShopping.map(i=>'• '+i).join('\n')).then(()=>alert('Lista copiada.'));}
 function toggleForm(){document.getElementById('customForm').classList.toggle('hidden');}
-function addMeal(){const name=document.getElementById('mealName').value.trim(),ingredients=document.getElementById('mealIngredients').value.split(',').map(x=>x.trim()).filter(Boolean),steps=document.getElementById('mealSteps').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!name||!ingredients.length||!steps.length){alert('Completá nombre, ingredientes y pasos.');return;}customMeals.push({name,ingredients,steps,cat:document.getElementById('mealCategory').value,protein:document.getElementById('mealProtein').value,method:document.getElementById('mealMethod').value,time:Number(document.getElementById('mealTime').value)||20});localStorage.setItem('smartMealCustom',JSON.stringify(customMeals));document.getElementById('mealName').value='';document.getElementById('mealIngredients').value='';document.getElementById('mealSteps').value='';toggleForm();
+function addMeal(){
+  const name=document.getElementById('mealName').value.trim();
+  const ingredients=document.getElementById('mealIngredients').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const steps=document.getElementById('mealSteps').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  if(!name||!ingredients.length||!steps.length){alert('Completá nombre, ingredientes y pasos.');return;}
+  customMeals.push({
+    name,ingredients,steps,
+    cat:document.getElementById('mealCategory').value,
+    protein:document.getElementById('mealProtein').value,
+    method:document.getElementById('mealMethod').value,
+    time:Number(document.getElementById('mealTime').value)||20
+  });
+  localStorage.setItem('smartMealCustom',JSON.stringify(customMeals));
+  document.getElementById('mealName').value='';
+  document.getElementById('mealIngredients').value='';
+  document.getElementById('mealSteps').value='';
+  toggleForm();
+  renderBank();
+}
+
 function saveHistory(names){
- menuHistory=[...names,...menuHistory.filter(n=>!names.includes(n))].slice(0,18);
- localStorage.setItem('qccHistory',JSON.stringify(menuHistory));renderHistory();
+  menuHistory=[...names,...menuHistory.filter(n=>!names.includes(n))].slice(0,18);
+  localStorage.setItem('qccHistory',JSON.stringify(menuHistory));
+  renderHistory();
 }
 function clearHistory(){menuHistory=[];localStorage.removeItem('qccHistory');renderHistory();}
 function renderHistory(){
- const el=document.getElementById('historyList');
- if(!el)return;
- el.innerHTML=menuHistory.length?menuHistory.slice(0,10).map(n=>`<div class="history-item">${n}</div>`).join(''):'<div class="empty">Todavía no hay menús generados.</div>';
+  const el=document.getElementById('historyList');
+  if(!el)return;
+  el.innerHTML=menuHistory.length?menuHistory.slice(0,10).map(n=>`<div class="history-item">${n}</div>`).join(''):'<div class="empty">Todavía no hay menús generados.</div>';
 }
 function toggleFavorite(key){
- const m=currentMenu[key];if(!m)return;
- const i=favorites.findIndex(x=>x.name===m.name);
- if(i>=0)favorites.splice(i,1);else favorites.unshift({name:m.name,cat:key,time:m.time,method:m.method});
- localStorage.setItem('qccFavorites',JSON.stringify(favorites));renderFavorites();renderMenu();
+  const m=currentMenu[key];if(!m)return;
+  const i=favorites.findIndex(x=>x.name===m.name);
+  if(i>=0)favorites.splice(i,1);else favorites.unshift({name:m.name,cat:key,time:m.time,method:m.method});
+  localStorage.setItem('qccFavorites',JSON.stringify(favorites));
+  renderFavorites();
+  renderMenu();
 }
 function clearFavorites(){favorites=[];localStorage.removeItem('qccFavorites');renderFavorites();renderMenu();}
 function renderFavorites(){
- const el=document.getElementById('favoritesList');if(!el)return;
- el.innerHTML=favorites.length?favorites.map(f=>`<div class="favorite-card"><strong>${f.name}</strong><div class="pill">${labels[f.cat]||f.cat} · ${f.time} min</div></div>`).join(''):'<div class="empty">Marcá el corazón de una comida para guardarla.</div>';
+  const el=document.getElementById('favoritesList');if(!el)return;
+  el.innerHTML=favorites.length?favorites.map(f=>`<div class="favorite-card"><strong>${f.name}</strong><div class="pill">${labels[f.cat]||f.cat} · ${f.time} min</div></div>`).join(''):'<div class="empty">Marcá el corazón de una comida para guardarla.</div>';
 }
 function toggleDark(){
- document.body.classList.toggle('dark');
- const dark=document.body.classList.contains('dark');
- localStorage.setItem('qccDark',dark?'1':'0');
- document.getElementById('darkButton').textContent=dark?'☀️':'🌙';
+  document.body.classList.toggle('dark');
+  const dark=document.body.classList.contains('dark');
+  localStorage.setItem('qccDark',dark?'1':'0');
+  document.getElementById('darkButton').textContent=dark?'☀️':'🌙';
 }
-if(localStorage.getItem('qccDark')==='1'){document.body.classList.add('dark');document.getElementById('darkButton').textContent='☀️';}
+if(localStorage.getItem('qccDark')==='1'){
+  document.body.classList.add('dark');
+  document.getElementById('darkButton').textContent='☀️';
+}
 
-renderBank();
-renderFavorites();
-renderHistory();}
 function removeMeal(i){customMeals.splice(i,1);localStorage.setItem('smartMealCustom',JSON.stringify(customMeals));renderBank();}
 function renderBank(){const el=document.getElementById('mealBank');el.innerHTML=customMeals.length?customMeals.map((m,i)=>`<div class="bank-item"><div><strong>${m.name}</strong><div class="pill">${labels[m.cat]||m.cat} · ${m.time} min</div></div><button class="danger" onclick="removeMeal(${i})">Eliminar</button></div>`).join('\n'):'<div class="empty">Todavía no agregaste comidas propias.</div>';}
 renderBank();
